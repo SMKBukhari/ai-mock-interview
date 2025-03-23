@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
 import { interviewer } from "@/constants";
-// import { createFeedback } from "@/lib/actions/general.action";
+import { createFeedback } from "@/actions/general.action";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -87,30 +87,29 @@ const Agent = ({
       setLastMessage(messages[messages.length - 1].content);
     }
 
-    // const handleGenerateFeedback = async (messages: SavedMessage[]) => {
-    //   console.log("handleGenerateFeedback");
+    const handleGenerateFeedback = async (messages: SavedMessage[]) => {
+      console.log("handleGenerateFeedback");
 
-    //   const { success, feedbackId: id } = await createFeedback({
-    //     interviewId: interviewId!,
-    //     userId: userId!,
-    //     transcript: messages,
-    //     feedbackId,
-    //   });
+      const { success, feedbackId: id } = await createFeedback({
+        interviewId: interviewId!,
+        userId: userId!,
+        transcript: messages,
+        feedbackId,
+      });
 
-    //   if (success && id) {
-    //     router.push(`/interview/${interviewId}/feedback`);
-    //   } else {
-    //     console.log("Error saving feedback");
-    //     router.push("/");
-    //   }
-    // };
+      if (success && id) {
+        router.push(`/interview/${interviewId}/feedback`);
+      } else {
+        console.log("Error saving feedback");
+        router.push("/");
+      }
+    };
 
     if (callStatus === CallStatus.FINISHED) {
       if (type === "generate") {
         router.push("/");
       } else {
-        // handleGenerateFeedback(messages);
-        console.log("handleGenerateFeedback");
+        handleGenerateFeedback(messages);
       }
     }
   }, [messages, callStatus, feedbackId, interviewId, router, type, userId]);
@@ -148,31 +147,31 @@ const Agent = ({
 
   return (
     <>
-      <div className="call-view">
+      <div className='call-view'>
         {/* AI Interviewer Card */}
-        <div className="card-interviewer">
-          <div className="avatar">
+        <div className='card-interviewer'>
+          <div className='avatar'>
             <Image
-              src="/ai-avatar.png"
-              alt="profile-image"
+              src='/ai-avatar.png'
+              alt='profile-image'
               width={65}
               height={54}
-              className="object-cover"
+              className='object-cover'
             />
-            {isSpeaking && <span className="animate-speak" />}
+            {isSpeaking && <span className='animate-speak' />}
           </div>
           <h3>AI Interviewer</h3>
         </div>
 
         {/* User Profile Card */}
-        <div className="card-border">
-          <div className="card-content">
+        <div className='card-border'>
+          <div className='card-content'>
             <Image
-              src="/user-avatar.png"
-              alt="profile-image"
+              src='/user-avatar.png'
+              alt='profile-image'
               width={539}
               height={539}
-              className="rounded-full object-cover size-[120px]"
+              className='rounded-full object-cover size-[120px]'
             />
             <h3>{userName}</h3>
           </div>
@@ -180,8 +179,8 @@ const Agent = ({
       </div>
 
       {messages.length > 0 && (
-        <div className="transcript-border">
-          <div className="transcript">
+        <div className='transcript-border'>
+          <div className='transcript'>
             <p
               key={lastMessage}
               className={cn(
@@ -195,9 +194,9 @@ const Agent = ({
         </div>
       )}
 
-      <div className="w-full flex justify-center">
+      <div className='w-full flex justify-center'>
         {callStatus !== "ACTIVE" ? (
-          <button className="relative btn-call" onClick={() => handleCall()}>
+          <button className='relative btn-call' onClick={() => handleCall()}>
             <span
               className={cn(
                 "absolute animate-ping rounded-full opacity-75",
@@ -205,14 +204,14 @@ const Agent = ({
               )}
             />
 
-            <span className="relative">
+            <span className='relative'>
               {callStatus === "INACTIVE" || callStatus === "FINISHED"
                 ? "Call"
                 : ". . ."}
             </span>
           </button>
         ) : (
-          <button className="btn-disconnect" onClick={() => handleDisconnect()}>
+          <button className='btn-disconnect' onClick={() => handleDisconnect()}>
             End
           </button>
         )}

@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/actions/auth.action";
 import Agent from "@/components/global/Agent";
 
-const InterviewPage = async () => {
+const Page = async () => {
   const user = await getCurrentUser();
 
   return (
@@ -17,4 +17,4 @@ const InterviewPage = async () => {
   );
 };
 
-export default InterviewPage;
+export default Page;
