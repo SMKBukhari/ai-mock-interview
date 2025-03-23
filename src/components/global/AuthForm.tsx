@@ -9,6 +9,13 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { toast } from "sonner";
 import FormField from "./FormField";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "@/firebase/client";
+import { signIn, signUp } from "@/actions/auth.action";
+import { useRouter } from "next/navigation";
 
 interface AuthFormProps {
   type: FormType;
@@ -23,6 +30,7 @@ const authFormSchema = (type: FormType) => {
 };
 
 const AuthForm = ({ type }: AuthFormProps) => {
+  const router = useRouter();
   const formSchema = authFormSchema(type);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -33,12 +41,52 @@ const AuthForm = ({ type }: AuthFormProps) => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (type === "sign-up") {
         console.log("Creating account...", values);
+        const { name, email, password } = values;
+
+        const userCredentials = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+        const result = await signUp({
+          uid: userCredentials.user.uid,
+          name: name!,
+          email,
+          password,
+        });
+
+        if (!result?.success) {
+          toast.error(result?.message);
+        }
+
+        toast.success("Account created successfully. Please sign in.");
+        router.push("/sign-in");
       } else {
         console.log("Signing in...", values);
+
+        const { email, password } = values;
+        const userCredentials = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+        const idToken = await userCredentials.user.getIdToken();
+
+        if (!idToken) {
+          toast.error("Something went wrong. Please try again later.");
+          return;
+        }
+
+        await signIn({ email, idToken });
+
+        toast.success("Signed in successfully.");
+        router.push("/");
       }
       console.log(values);
     } catch (error) {
@@ -65,7 +113,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
               <FormField
                 control={form.control}
                 name={"name"}
-                label='name'
+                label='Name'
                 placeholder='Your Name'
                 type='text'
               />
